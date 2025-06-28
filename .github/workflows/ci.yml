@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  back-end:
+    name: Build and lint back-end
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.24'
+
+    - name: Build
+      working-directory: ./back-end
+      run: go build -v ./...
+
+  front-end:
+    name: Build and lint front-end
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install frontend dependencies
+        working-directory: ./front-end
+        run: npm install
+
+      - name: Type check frontend
+        working-directory: ./front-end
+        run: npx tsc --noEmit
+
+      - name: Lint frontend
+        working-directory: ./front-end
+        run: npm run lint
+
+      - name: Build frontend
+        working-directory: ./front-end
+        run: npm run build
